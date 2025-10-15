@@ -4,14 +4,41 @@
 #include <time.h>
 #include <sys/resource.h>
 
-void multiply_matrices(int **A, int **B, int **C, int N) {
+// Definición de la constante del tamaño de bloque (Tiling)
+#define BLOCK_SIZE 32
+
+// Función de multiplicación secuencial OPTIMIZADA con Bloqueo de Caché
+void multiply_matrices_opt(int **A, int **B, int **C, int N) {
+    // 1. Inicializar C a cero (necesario para el Tiling, que es una acumulación)
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
-            long long sum = 0;
-            for (int k = 0; k < N; k++) {
-                sum += (long long)A[i][k] * B[k][j];
+            C[i][j] = 0;
+        }
+    }
+
+    // 2. Multiplicación con Bloqueo de Caché (Tiling)
+    // Se agregan 3 bucles externos (k_bloque, i_bloque, j_bloque)
+    for (int k_bloque = 0; k_bloque < N; k_bloque += BLOCK_SIZE) {
+        for (int i_bloque = 0; i_bloque < N; i_bloque += BLOCK_SIZE) {
+            for (int j_bloque = 0; j_bloque < N; j_bloque += BLOCK_SIZE) {
+
+                // Bucles internos
+                
+                // Determinar límites reales para evitar salirse de N
+                int i_limit = (i_bloque + BLOCK_SIZE < N) ? i_bloque + BLOCK_SIZE : N;
+                int j_limit = (j_bloque + BLOCK_SIZE < N) ? j_bloque + BLOCK_SIZE : N;
+                int k_limit = (k_bloque + BLOCK_SIZE < N) ? k_bloque + BLOCK_SIZE : N;
+
+                for (int i = i_bloque; i < i_limit; i++) {
+                    for (int j = j_bloque; j < j_limit; j++) {
+                        long long temp_sum = C[i][j]; // Acumulación
+                        for (int k = k_bloque; k < k_limit; k++) {
+                            temp_sum += (long long)A[i][k] * B[k][j];
+                        }
+                        C[i][j] = (int)temp_sum; // Almacenar el valor acumulado
+                    }
+                }
             }
-            C[i][j] = (int)sum;
         }
     }
 }
@@ -33,10 +60,10 @@ int main(int argc, char *argv[]) {
     fill_random_matrix(B, N);
     
     iniciar_temporizador(RUSAGE_SELF);
-    multiply_matrices(A, B, C, N);
+    multiply_matrices_opt(A, B, C, N); // Llamada a la función OPTIMIZADA
     fin_medicion();
 
-    FILE *f = fopen("resultado_sec.txt", "w");
+    FILE *f = fopen("resultado_sec_opt.txt", "w"); // Nombre de archivo de salida
     if (!f) {
         perror("Error al abrir el archivo");
         free_matrix(A, N);
