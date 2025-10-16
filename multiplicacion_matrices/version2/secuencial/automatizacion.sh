@@ -12,7 +12,7 @@ gcc OpenMP.c ../../matriz_utils/matriz_utils.c -o mm_openmp -fopenmp -O3 -pg
 
 # ------------------ Configuración ------------------ #
 ITERACIONES=3
-N_LISTA=(100 200 400)
+N_LISTA=(1600)
 HILOS_LISTA=(2 4)
 PROCESOS_LISTA=(2 4)
 OUTPUT=resultados_metricas.csv
