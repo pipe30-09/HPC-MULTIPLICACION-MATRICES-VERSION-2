@@ -1,5 +1,5 @@
 #!/bin/bash
-# Para entrar al archivo: cd TIEMPO_AUTOMATIZACION
+# Para entrar al archivo: cd version2/secuencial
 # Para dar permisos: chmod +x automatizacion.sh
 # Para ejecutar: ./automatizacion.sh
 
