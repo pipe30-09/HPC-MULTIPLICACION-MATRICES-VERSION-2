@@ -18,8 +18,8 @@ gcc OpenMP.c ../../matriz_utils/matriz_utils.c -o mm_openmp -fopenmp -O3 -pg
 echo "[OK] Compilación completa."
 
 # ------------------ Configuración ------------------ #
-ITERACIONES=3
-N_LISTA=(800)
+ITERACIONES=2
+N_LISTA=(1600)
 HILOS_LISTA=(2 4)
 OUTPUT=resultados_metricas.csv
 
@@ -29,7 +29,7 @@ echo "Version,N,Hilos,Tiempo(s),User(s),System(s),CPU(%),Memoria(KB)" > $OUTPUT
 # ===================================================
 # OPTIMIZACIÓN MEMORIA (Tiling)
 # ===================================================
-echo -e "\n=== MÉTRICAS SECUENCIAL OPTIMIZADA (Tiling) ==="
+echo -e "\n=== MÉTRICAS OPTIMIZACIÓN MEMORIA (Tiling) ==="
 for N in "${N_LISTA[@]}"; do
     for ((i=1; i<=ITERACIONES; i++)); do
         echo "Ejecutando matriz_sec_opt N=$N (iteración $i)"
@@ -110,4 +110,4 @@ if [ -f gmon.out ]; then
 fi
 
 # ===================================================
-echo -e "\n✅ TODAS LAS MÉTRICAS GUARDADAS EN: $OUTPUT"
+echo -e "\n TODAS LAS MÉTRICAS GUARDADAS EN: $OUTPUT"
