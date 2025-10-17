@@ -7,6 +7,9 @@
 # Versión 2 (Optimizada con Tiling)
 gcc matriz.c ../../matriz_utils/matriz_utils.c -o matriz_sec_opt -O3 -pg  # NUEVO: Secuencial Optimizado con perfilado
 
+# Versión 2 Optimizada para CPU (Loop Unrolling)
+gcc matriz_sec_cpu.c ../../matriz_utils/matriz_utils.c -o matriz_sec_cpu -03 -pg # NUEVO: Secuencial Optimizado CPU con perfilado
+
 # Con OpenMP
 gcc OpenMP.c ../../matriz_utils/matriz_utils.c -o mm_openmp -fopenmp -O3 -pg
 
