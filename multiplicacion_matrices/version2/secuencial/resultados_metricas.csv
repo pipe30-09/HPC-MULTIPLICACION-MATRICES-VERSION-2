@@ -1,9 +1,0 @@
-Version,N,Hilos,Tiempo(s),User(s),System(s),CPU(%),Memoria(KB)
-Memoria-Optimizada,1600,1,0:03.45,3.39,0.05,,31576
-Memoria-Optimizada,1600,1,0:03.67,3.47,0.09,,31576
-CPU-Optimizada,1600,1,0:05.57,5.49,0.06,,31576
-CPU-Optimizada,1600,1,0:05.30,5.12,0.08,,31704
-OpenMP,1600,2,0:00.00,0.00,0.00,,1968
-OpenMP,1600,2,0:00.00,0.00,0.00,,1972
-OpenMP,1600,4,0:00.00,0.00,0.00,,1972
-OpenMP,1600,4,0:00.00,0.00,0.00,,2024

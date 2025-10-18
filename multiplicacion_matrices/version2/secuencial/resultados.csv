@@ -1,9 +1,0 @@
-N,Tiempo_ms,Tipo,Hilos
-1600,0:03.45,Memoria-Optimizada,1
-1600,0:03.67,Memoria-Optimizada,1
-1600,0:05.57,CPU-Optimizada,1
-1600,0:05.30,CPU-Optimizada,1
-1600,0:00.00,OpenMP,2
-1600,0:00.00,OpenMP,2
-1600,0:00.00,OpenMP,4
-1600,0:00.00,OpenMP,4
