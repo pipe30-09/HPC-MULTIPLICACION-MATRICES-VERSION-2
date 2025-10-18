@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     fill_random_matrix(A, N);
     fill_random_matrix(B, N);
 
-    iniciar_temporizador(RUSAGE_CHILDREN);
+    iniciar_temporizador(RUSAGE_SELF);
 
     // 🔥 Llamada paralela
     multiply_matrices_omp(A, B, C, N, num_threads);
