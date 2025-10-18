@@ -1,9 +1,9 @@
 #!/bin/bash
+
 # ============================================
 # AUTOMATIZACIÓN: Secuencial + Optimización CPU + OpenMP + Perfilado
 # ============================================
 
-# ------------------ Compilación ------------------ #
 echo "=== COMPILANDO TODAS LAS VERSIONES ==="
 
 # Versión 1: Secuencial optimizada (Tiling)
@@ -19,15 +19,14 @@ echo "[OK] Compilación completa."
 
 # ------------------ Configuración ------------------ #
 ITERACIONES=2
-N_LISTA=(1600)
+N_LISTA=(200 300 400  )
 HILOS_LISTA=(2 4)
 
-# Archivo principal de métricas detalladas
-OUTPUT=resultados_metricas.csv
-echo "Version,N,Hilos,Tiempo(s),User(s),System(s),CPU(%),Memoria(KB)" > $OUTPUT
-
-# Archivo adicional de benchmark resumido
+# Archivos de salida
+OUTPUT="resultados_metricas.csv"
 OUTPUT_SIMPLE="resultados.csv"
+
+echo "Version,N,Hilos,Tiempo(s),User(s),System(s),CPU(%),Memoria(KB)" > $OUTPUT
 echo "N,Tiempo_ms,Tipo,Hilos" > $OUTPUT_SIMPLE
 
 # ===================================================
@@ -57,7 +56,6 @@ if [ -f gmon.out ]; then
     rm -f gmon.out
 fi
 
-
 # ===================================================
 # OPTIMIZACIÓN CPU (Loop Unrolling)
 # ===================================================
@@ -78,13 +76,11 @@ for N in "${N_LISTA[@]}"; do
     done
 done
 
-# Perfilado con gprof
 if [ -f gmon.out ]; then
     gprof ./cpu_opt gmon.out > perfil_cpu_opt.txt
     echo "Perfil CPU optimizada guardado en perfil_cpu_opt.txt"
     rm -f gmon.out
 fi
-
 
 # ===================================================
 # OPENMP
@@ -95,7 +91,9 @@ for N in "${N_LISTA[@]}"; do
         export OMP_NUM_THREADS=$H
         for ((i=1; i<=ITERACIONES; i++)); do
             echo "Ejecutando mm_openmp N=$N H=$H (iteración $i)"
-            /usr/bin/time -v ./mm_openmp $N 2> temp.txt > /dev/null
+            
+            # 🔧 Corrección: pasar ambos argumentos (N y número de hilos)
+            /usr/bin/time -v ./mm_openmp $N $H 2> temp.txt > /dev/null
 
             USER=$(grep "User time" temp.txt | awk '{print $4}')
             SYS=$(grep "System time" temp.txt | awk '{print $4}')
@@ -109,7 +107,6 @@ for N in "${N_LISTA[@]}"; do
     done
 done
 
-# Perfilado con gprof
 if [ -f gmon.out ]; then
     gprof ./mm_openmp gmon.out > perfil_openmp.txt
     echo "Perfil OpenMP guardado en perfil_openmp.txt"
@@ -117,6 +114,10 @@ if [ -f gmon.out ]; then
 fi
 
 # ===================================================
+echo -e "\nGenerando gráfico..."
+# 🔧 Corrección: Ejecutar el script de Python correctamente
+python3 graficos.py
+
 echo -e "\nTODAS LAS MÉTRICAS GUARDADAS EN:"
 echo "   - $OUTPUT"
 echo "   - $OUTPUT_SIMPLE"
