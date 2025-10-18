@@ -21,10 +21,14 @@ echo "[OK] Compilación completa."
 ITERACIONES=2
 N_LISTA=(1600)
 HILOS_LISTA=(2 4)
-OUTPUT=resultados_metricas.csv
 
-# Limpiar resultados previos
+# Archivo principal de métricas detalladas
+OUTPUT=resultados_metricas.csv
 echo "Version,N,Hilos,Tiempo(s),User(s),System(s),CPU(%),Memoria(KB)" > $OUTPUT
+
+# Archivo adicional de benchmark resumido
+OUTPUT_SIMPLE="resultados.csv"
+echo "N,Tiempo_ms,Tipo,Hilos" > $OUTPUT_SIMPLE
 
 # ===================================================
 # OPTIMIZACIÓN MEMORIA (Tiling)
@@ -42,6 +46,7 @@ for N in "${N_LISTA[@]}"; do
         ELAPSED=$(grep "Elapsed" temp.txt | awk '{print $8}')
 
         echo "Memoria-Optimizada,$N,1,$ELAPSED,$USER,$SYS,$CPU,$MEM" >> $OUTPUT
+        echo "$N,$ELAPSED,Memoria-Optimizada,1" >> $OUTPUT_SIMPLE
     done
 done
 
@@ -69,6 +74,7 @@ for N in "${N_LISTA[@]}"; do
         ELAPSED=$(grep "Elapsed" temp.txt | awk '{print $8}')
 
         echo "CPU-Optimizada,$N,1,$ELAPSED,$USER,$SYS,$CPU,$MEM" >> $OUTPUT
+        echo "$N,$ELAPSED,CPU-Optimizada,1" >> $OUTPUT_SIMPLE
     done
 done
 
@@ -98,6 +104,7 @@ for N in "${N_LISTA[@]}"; do
             ELAPSED=$(grep "Elapsed" temp.txt | awk '{print $8}')
 
             echo "OpenMP,$N,$H,$ELAPSED,$USER,$SYS,$CPU,$MEM" >> $OUTPUT
+            echo "$N,$ELAPSED,OpenMP,$H" >> $OUTPUT_SIMPLE
         done
     done
 done
@@ -110,4 +117,6 @@ if [ -f gmon.out ]; then
 fi
 
 # ===================================================
-echo -e "\n TODAS LAS MÉTRICAS GUARDADAS EN: $OUTPUT"
+echo -e "\nTODAS LAS MÉTRICAS GUARDADAS EN:"
+echo "   - $OUTPUT"
+echo "   - $OUTPUT_SIMPLE"
