@@ -60,19 +60,24 @@ plt.savefig(os.path.join(output_dir, "tiempo_promedio_vs_N_combinado.png"))
 plt.close()
 print("Gráfico combinado de Tiempo promedio guardado.")
 
-# === Calcular Speedup por tipo ===
+# === Calcular Speedup usando SECUENCIAL como base ===
 speedup_data = []
+
+# Obtener tiempos de SECUENCIAL como referencia
+base_secuencial = promedios[promedios["Tipo"] == "SECUENCIAL"][["N", "Tiempo_s"]].rename(
+    columns={"Tiempo_s": "Tiempo_s_base"}
+)
+
+# Calcular speedup para todos los tipos (incluyendo SECUENCIAL)
 for tipo, grupo_tipo in promedios.groupby("Tipo"):
-    min_hilos = grupo_tipo["Hilos"].min()
-    base = grupo_tipo[grupo_tipo["Hilos"] == min_hilos]
     for hilos, datos in grupo_tipo.groupby("Hilos"):
         merged = pd.merge(
-            base[["N", "Tiempo_s"]],
+            base_secuencial,
             datos[["N", "Tiempo_s"]],
-            on="N",
-            suffixes=("_base", "_actual")
+            on="N"
         )
-        merged["Speedup"] = merged["Tiempo_s_base"] / merged["Tiempo_s_actual"]
+        # Speedup = Tiempo_SECUENCIAL / Tiempo_Actual
+        merged["Speedup"] = merged["Tiempo_s_base"] / merged["Tiempo_s"]
         merged["Tipo"] = tipo
         merged["Hilos"] = hilos
         speedup_data.append(merged)
@@ -96,11 +101,11 @@ for i, tipo in enumerate(tipos):
 max_hilos = int(df["Hilos"].max())
 n_vals = sorted(df["N"].unique())
 plt.plot(n_vals, [max_hilos] * len(n_vals), 'k--', label=f'Speedup ideal ({max_hilos}x)')
-plt.axhline(1, color='gray', linestyle=':', label='Base (1x)')
+plt.axhline(1, color='gray', linestyle=':', label='Base SECUENCIAL (1x)')
 
 plt.xlabel("Tamaño de matriz (N)")
 plt.ylabel("Speedup (x)")
-plt.title("Speedup promedio vs N - Todos los tipos")
+plt.title("Speedup vs N (Base: SECUENCIAL)")
 plt.legend(ncol=2, fontsize=9)
 plt.grid(True)
 plt.tight_layout()
@@ -144,10 +149,10 @@ for i, tipo in enumerate(tipos):
     max_hilos_tipo = grupo_tipo["Hilos"].max()
     n_vals_tipo = sorted(grupo_tipo["N"].unique())
     plt.plot(n_vals_tipo, [max_hilos_tipo] * len(n_vals_tipo), 'k--', label=f'Speedup ideal ({max_hilos_tipo}x)')
-    plt.axhline(1, color='gray', linestyle=':', label='Base (1x)')
+    plt.axhline(1, color='gray', linestyle=':', label='Base SECUENCIAL (1x)')
     plt.xlabel("Tamaño de matriz (N)")
     plt.ylabel("Speedup (x)")
-    plt.title(f"Speedup promedio vs N - {tipo}")
+    plt.title(f"Speedup vs N - {tipo} (Base: SECUENCIAL)")
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
