@@ -6,6 +6,9 @@
 
 echo "=== COMPILANDO TODAS LAS VERSIONES ==="
 
+#Version secuencial
+gcc matriz.c ../../matriz_utils/matriz_utils.c -o matriz_SECUENCIAL 
+
 # Versión 1: Secuencial optimizada (Tiling)
 gcc matriz_memoria.c ../../matriz_utils/matriz_utils.c -o matriz_sec_opt -O3 -pg
 
@@ -19,7 +22,7 @@ echo "[OK] Compilación completa."
 
 # ------------------ Configuración ------------------ #
 ITERACIONES=2
-N_LISTA=(200 300 400  )
+N_LISTA=(200 400 800)
 HILOS_LISTA=(2 4)
 
 # Archivos de salida
@@ -29,12 +32,33 @@ OUTPUT_SIMPLE="resultados.csv"
 echo "Version,N,Hilos,Tiempo(s),User(s),System(s),CPU(%),Memoria(KB)" > $OUTPUT
 echo "N,Tiempo_ms,Tipo,Hilos" > $OUTPUT_SIMPLE
 
+
+# ===================================================
+# SECUENCIAL
+# ===================================================
+echo -e "\n=== MÉTRICAS SECUENCIAL ==="
+for ((i=1; i<=ITERACIONES; i++)); do
+    for N in "${N_LISTA[@]}"; do
+        echo "Ejecutando matriz_SECUENCIAL N=$N (iteración $i)"
+        /usr/bin/time -v ./matriz_SECUENCIAL $N 2> temp.txt > /dev/null
+
+        USER=$(grep "User time" temp.txt | awk '{print $4}')
+        SYS=$(grep "System time" temp.txt | awk '{print $4}')
+        CPU=$(grep "Percent of CPU" temp.txt | awk '{print $8}')
+        MEM=$(grep "Maximum resident set size" temp.txt | awk '{print $6}')
+        ELAPSED=$(grep "Elapsed" temp.txt | awk '{print $8}')
+
+        echo "SECUENCIAL,$N,1,$ELAPSED,$USER,$SYS,$CPU,$MEM" >> $OUTPUT
+        echo "$N,$ELAPSED,SECUENCIAL,1" >> $OUTPUT_SIMPLE
+    done
+done
+
 # ===================================================
 # OPTIMIZACIÓN MEMORIA (Tiling)
 # ===================================================
 echo -e "\n=== MÉTRICAS OPTIMIZACIÓN MEMORIA (Tiling) ==="
-for N in "${N_LISTA[@]}"; do
-    for ((i=1; i<=ITERACIONES; i++)); do
+for ((i=1; i<=ITERACIONES; i++)); do
+    for N in "${N_LISTA[@]}"; do
         echo "Ejecutando matriz_sec_opt N=$N (iteración $i)"
         /usr/bin/time -v ./matriz_sec_opt $N 2> temp.txt > /dev/null
 
@@ -60,8 +84,8 @@ fi
 # OPTIMIZACIÓN CPU (Loop Unrolling)
 # ===================================================
 echo -e "\n=== MÉTRICAS OPTIMIZACIÓN CPU (Loop Unrolling) ==="
-for N in "${N_LISTA[@]}"; do
-    for ((i=1; i<=ITERACIONES; i++)); do
+for ((i=1; i<=ITERACIONES; i++)); do
+    for N in "${N_LISTA[@]}"; do
         echo "Ejecutando cpu_opt N=$N (iteración $i)"
         /usr/bin/time -v ./cpu_opt $N 2> temp.txt > /dev/null
 
@@ -86,13 +110,12 @@ fi
 # OPENMP
 # ===================================================
 echo -e "\n=== MÉTRICAS OPENMP ==="
-for N in "${N_LISTA[@]}"; do
-    for H in "${HILOS_LISTA[@]}"; do
-        export OMP_NUM_THREADS=$H
-        for ((i=1; i<=ITERACIONES; i++)); do
+for ((i=1; i<=ITERACIONES; i++)); do
+    for N in "${N_LISTA[@]}"; do
+        for H in "${HILOS_LISTA[@]}"; do
+            export OMP_NUM_THREADS=$H
             echo "Ejecutando mm_openmp N=$N H=$H (iteración $i)"
             
-            # 🔧 Corrección: pasar ambos argumentos (N y número de hilos)
             /usr/bin/time -v ./mm_openmp $N $H 2> temp.txt > /dev/null
 
             USER=$(grep "User time" temp.txt | awk '{print $4}')
@@ -115,7 +138,6 @@ fi
 
 # ===================================================
 echo -e "\nGenerando gráfico..."
-# 🔧 Corrección: Ejecutar el script de Python correctamente
 python3 graficos.py
 
 echo -e "\nTODAS LAS MÉTRICAS GUARDADAS EN:"
