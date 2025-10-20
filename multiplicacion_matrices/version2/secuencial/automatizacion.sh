@@ -1,4 +1,11 @@
 #!/bin/bash
+# primero entramos a una nueva terminal
+# Para entrar al archivo: cd multiplicacion_matrices 
+#                         cd version2 
+#                         cd secuencial
+# Ponemos "screen"
+# Para dar permisos: chmod +x automatizacion.sh
+# Para ejecutar: ./automatizacion.sh
 
 # ============================================
 # AUTOMATIZACIÓN: Secuencial + Optimización CPU + OpenMP + Perfilado
@@ -21,9 +28,9 @@ gcc OpenMP.c ../../matriz_utils/matriz_utils.c -o mm_openmp -fopenmp -O3 -pg
 echo "[OK] Compilación completa."
 
 # ------------------ Configuración ------------------ #
-ITERACIONES=2
-N_LISTA=(200 400 800)
-HILOS_LISTA=(2 4)
+ITERACIONES=10
+N_LISTA=(100 200 400 800 1600 3200)
+HILOS_LISTA=(2 4 8 16)
 
 # Archivos de salida
 OUTPUT="resultados_metricas.csv"
